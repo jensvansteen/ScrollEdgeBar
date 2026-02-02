@@ -69,19 +69,20 @@ class PRDetailViewController: UIViewController {
 
         let label = UILabel()
         label.text = "alexjohnson requested your review"
-        label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.numberOfLines = 0
+        label.font = .systemFont(ofSize: 13, weight: .medium)
+        label.numberOfLines = 2
+        label.lineBreakMode = .byWordWrapping
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         let textStack = UIStackView(arrangedSubviews: [label])
         textStack.axis = .vertical
 
-        let reviewButton = UIButton(type: .system)
-        reviewButton.setTitle("Review", for: .normal)
-        reviewButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
-        reviewButton.backgroundColor = .systemBlue
-        reviewButton.setTitleColor(.white, for: .normal)
-        reviewButton.layer.cornerRadius = 6
-        reviewButton.contentEdgeInsets = UIEdgeInsets(top: 6, left: 14, bottom: 6, right: 14)
+        var reviewConfig = UIButton.Configuration.filled()
+        reviewConfig.title = "Review"
+        reviewConfig.cornerStyle = .capsule
+        reviewConfig.buttonSize = .small
+        let reviewButton = UIButton(configuration: reviewConfig)
+        reviewButton.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         let stack = UIStackView(arrangedSubviews: [icon, textStack, reviewButton])
         stack.axis = .horizontal

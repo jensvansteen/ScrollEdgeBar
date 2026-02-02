@@ -145,6 +145,7 @@ The [Example/](Example/) directory contains a full demo app showcasing different
 | **Toolbar** | Bottom edge bar positioned above the system `UIToolbar` |
 | **Search Bar** | `UISearchController` in the navigation bar with a segmented control edge bar below |
 | **Tab Accessory** | `UITabAccessory` bottom accessory combined with a top edge bar |
+| **Calendar** | Week day selector top bar with strong edge blur, simulating the Calendar app |
 
 To run the example, open `Example/ScrollEdgeBarExampleApp/ScrollEdgeBarExampleApp.xcodeproj` in Xcode 26.
 

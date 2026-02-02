@@ -7,40 +7,40 @@ class TabAccessoryViewController: UIViewController {
     private var edgeBarController: ScrollEdgeBarController?
 
     private let songs = [
-        ("Blinding Lights", "The Weeknd"),
-        ("Levitating", "Dua Lipa"),
-        ("Stay", "The Kid LAROI & Justin Bieber"),
-        ("Good 4 U", "Olivia Rodrigo"),
-        ("Peaches", "Justin Bieber ft. Daniel Caesar"),
-        ("Montero", "Lil Nas X"),
-        ("Kiss Me More", "Doja Cat ft. SZA"),
-        ("Save Your Tears", "The Weeknd & Ariana Grande"),
-        ("Drivers License", "Olivia Rodrigo"),
-        ("Butter", "BTS"),
-        ("Heat Waves", "Glass Animals"),
-        ("Industry Baby", "Lil Nas X & Jack Harlow"),
-        ("Shivers", "Ed Sheeran"),
-        ("Easy On Me", "Adele"),
-        ("Happier Than Ever", "Billie Eilish"),
-        ("As It Was", "Harry Styles"),
-        ("Anti-Hero", "Taylor Swift"),
-        ("Unholy", "Sam Smith & Kim Petras"),
-        ("About Damn Time", "Lizzo"),
-        ("Bad Habit", "Steve Lacy"),
-        ("Running Up That Hill", "Kate Bush"),
-        ("I Ain't Worried", "OneRepublic"),
-        ("Calm Down", "Rema & Selena Gomez"),
-        ("Flowers", "Miley Cyrus"),
-        ("Kill Bill", "SZA"),
-        ("Creepin'", "Metro Boomin ft. The Weeknd"),
-        ("Boy's a Liar Pt. 2", "PinkPantheress & Ice Spice"),
-        ("Vampire", "Olivia Rodrigo"),
-        ("Paint The Town Red", "Doja Cat"),
-        ("Cruel Summer", "Taylor Swift"),
-        ("Snooze", "SZA"),
-        ("Last Night", "Morgan Wallen"),
-        ("Espresso", "Sabrina Carpenter"),
-        ("Greedy", "Tate McRae"),
+        ("Neon Skyline", "Luna Park"),
+        ("Elevate", "Mira Cole"),
+        ("Drift Away", "Echo & The Waves"),
+        ("Golden Hour", "Sage Rivera"),
+        ("Afterglow", "Felix Hart ft. Nova Chen"),
+        ("Wildfire", "Kai Lumen"),
+        ("Closer Still", "Vera Lin ft. Arlo"),
+        ("Midnight Rain", "Luna Park & Celeste Voss"),
+        ("Open Road", "Sage Rivera"),
+        ("Sunrise", "Prism"),
+        ("Slow Burn", "Amber Dunes"),
+        ("Neon Dreams", "Kai Lumen & Theo Blake"),
+        ("Electric", "Owen Marsh"),
+        ("Let It Go", "Clara Veil"),
+        ("Better Days", "Ivy Sinclair"),
+        ("Paper Planes", "Marcus Wren"),
+        ("Sidetrack", "Elara Moon"),
+        ("Freefall", "Jasper Cole & Rue Kim"),
+        ("About Time", "Delia Ray"),
+        ("Old Habits", "Sam Vega"),
+        ("Uphill", "Fern Holloway"),
+        ("No Worries", "Solaris"),
+        ("Easy Breeze", "Rio & Maya Sol"),
+        ("Petals", "Jolie West"),
+        ("Switchblade", "Arlo"),
+        ("Lurking", "Onyx ft. Luna Park"),
+        ("Half Truth", "Rosie Fawn & Neve"),
+        ("Nocturnal", "Sage Rivera"),
+        ("Color Splash", "Vera Lin"),
+        ("Hot Pavement", "Elara Moon"),
+        ("Daydream", "Arlo"),
+        ("Late Call", "Beck Wilder"),
+        ("Morning Buzz", "Hazel Bright"),
+        ("Wanting More", "Jules Avery"),
     ]
 
     override func viewDidLoad() {
@@ -200,11 +200,11 @@ private class NowPlayingAccessoryView: UIView {
             noteIcon.heightAnchor.constraint(equalToConstant: 18),
         ])
 
-        titleLabel.text = "Blinding Lights"
+        titleLabel.text = "Neon Skyline"
         titleLabel.font = .systemFont(ofSize: 14, weight: .semibold)
         titleLabel.textColor = .label
 
-        artistLabel.text = "The Weeknd"
+        artistLabel.text = "Luna Park"
         artistLabel.font = .systemFont(ofSize: 12)
         artistLabel.textColor = .secondaryLabel
 

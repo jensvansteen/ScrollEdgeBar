@@ -47,8 +47,6 @@ struct ScrollViewWrapper: UIViewRepresentable {
         let container = UIView()
         
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.topEdgeEffect.style = .automatic
-        scrollView.bottomEdgeEffect.style = .automatic
         scrollView.contentInsetAdjustmentBehavior = .never
         
         scrollView.showsHorizontalScrollIndicator = false
