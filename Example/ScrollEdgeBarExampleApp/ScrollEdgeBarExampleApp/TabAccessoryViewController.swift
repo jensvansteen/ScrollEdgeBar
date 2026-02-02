@@ -22,6 +22,25 @@ class TabAccessoryViewController: UIViewController {
         ("Shivers", "Ed Sheeran"),
         ("Easy On Me", "Adele"),
         ("Happier Than Ever", "Billie Eilish"),
+        ("As It Was", "Harry Styles"),
+        ("Anti-Hero", "Taylor Swift"),
+        ("Unholy", "Sam Smith & Kim Petras"),
+        ("About Damn Time", "Lizzo"),
+        ("Bad Habit", "Steve Lacy"),
+        ("Running Up That Hill", "Kate Bush"),
+        ("I Ain't Worried", "OneRepublic"),
+        ("Calm Down", "Rema & Selena Gomez"),
+        ("Flowers", "Miley Cyrus"),
+        ("Kill Bill", "SZA"),
+        ("Creepin'", "Metro Boomin ft. The Weeknd"),
+        ("Boy's a Liar Pt. 2", "PinkPantheress & Ice Spice"),
+        ("Vampire", "Olivia Rodrigo"),
+        ("Paint The Town Red", "Doja Cat"),
+        ("Cruel Summer", "Taylor Swift"),
+        ("Snooze", "SZA"),
+        ("Last Night", "Morgan Wallen"),
+        ("Espresso", "Sabrina Carpenter"),
+        ("Greedy", "Tate McRae"),
     ]
 
     override func viewDidLoad() {
@@ -41,6 +60,7 @@ class TabAccessoryViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
+        tabBarController?.tabBarMinimizeBehavior = .onScrollDown
         setupTabAccessory()
         setupEdgeBars()
     }
@@ -48,6 +68,7 @@ class TabAccessoryViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         tabBarController?.bottomAccessory = nil
+        tabBarController?.tabBarMinimizeBehavior = .never
     }
 
     private func setupTabAccessory() {
@@ -75,6 +96,9 @@ class TabAccessoryViewController: UIViewController {
         ])
         controller.setTopBar(topBar)
 
+        let bottomBar = createBottomBar()
+        controller.setBottomBar(bottomBar)
+
         addChild(controller)
         view.addSubview(controller.view)
         controller.view.translatesAutoresizingMaskIntoConstraints = false
@@ -86,6 +110,39 @@ class TabAccessoryViewController: UIViewController {
         ])
         controller.didMove(toParent: self)
         edgeBarController = controller
+    }
+
+    private func createBottomBar() -> UIView {
+        let container = UIView()
+
+        let shuffleButton = UIButton(type: .system)
+        shuffleButton.setImage(UIImage(systemName: "shuffle"), for: .normal)
+        shuffleButton.setTitle(" Shuffle", for: .normal)
+        shuffleButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+
+        let repeatButton = UIButton(type: .system)
+        repeatButton.setImage(UIImage(systemName: "repeat"), for: .normal)
+        repeatButton.setTitle(" Repeat", for: .normal)
+        repeatButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+
+        let spacer = UIView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+
+        let stack = UIStackView(arrangedSubviews: [shuffleButton, spacer, repeatButton])
+        stack.axis = .horizontal
+        stack.spacing = 8
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        container.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 8),
+            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -16),
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor, constant: -8),
+        ])
+
+        return container
     }
 }
 
@@ -116,6 +173,7 @@ private class NowPlayingAccessoryView: UIView {
     private let artworkView = UIView()
     private let titleLabel = UILabel()
     private let artistLabel = UILabel()
+    private let textStack = UIStackView()
     private let playButton = UIButton(type: .system)
     private let forwardButton = UIButton(type: .system)
 
@@ -150,7 +208,8 @@ private class NowPlayingAccessoryView: UIView {
         artistLabel.font = .systemFont(ofSize: 12)
         artistLabel.textColor = .secondaryLabel
 
-        let textStack = UIStackView(arrangedSubviews: [titleLabel, artistLabel])
+        textStack.addArrangedSubview(titleLabel)
+        textStack.addArrangedSubview(artistLabel)
         textStack.axis = .vertical
         textStack.spacing = 1
 
@@ -176,7 +235,19 @@ private class NowPlayingAccessoryView: UIView {
             stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -12),
             stack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
         ])
+
+        registerForTraitChanges([UITraitTabAccessoryEnvironment.self]) { (self: NowPlayingAccessoryView, _: UITraitCollection) in
+            self.updateForEnvironment()
+        }
     }
 
     required init?(coder: NSCoder) { fatalError() }
+
+    private func updateForEnvironment() {
+        let isInline = traitCollection.tabAccessoryEnvironment == .inline
+
+        artworkView.isHidden = isInline
+        artistLabel.isHidden = isInline
+        forwardButton.isHidden = isInline
+    }
 }

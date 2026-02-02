@@ -46,6 +46,9 @@ public final class ScrollEdgeBarController: UIViewController {
     private var bottomBarView: UIView?
     private var hostingController: UIHostingController<ScrollEdgeBarWrapperView>?
     private var didSetup = false
+    private var lastTopInset: CGFloat = 0
+    private var lastBottomInset: CGFloat = 0
+    private var displayLink: CADisplayLink?
 
     // MARK: - Initialization
 
@@ -94,6 +97,18 @@ public final class ScrollEdgeBarController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .clear
         scrollView.alpha = 0
+    }
+
+    public override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        stopDisplayLink()
+    }
+
+    public override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if didSetup {
+            startDisplayLink()
+        }
     }
 
     public override func viewDidLayoutSubviews() {
@@ -149,6 +164,7 @@ public final class ScrollEdgeBarController: UIViewController {
         // Correct with real insets once SwiftUI has rendered the bars
         DispatchQueue.main.async {
             self.applyInsets()
+            self.startDisplayLink()
         }
     }
 
@@ -171,9 +187,39 @@ public final class ScrollEdgeBarController: UIViewController {
     private func applyInsets() {
         let (topInset, bottomInset) = findEdgeBarInsets()
 
+        lastTopInset = topInset
+        lastBottomInset = bottomInset
+
         scrollView.contentInset = UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
         scrollView.verticalScrollIndicatorInsets = UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
         scrollView.contentOffset = CGPoint(x: 0, y: -topInset)
+    }
+
+    private func startDisplayLink() {
+        guard displayLink == nil else { return }
+        let link = CADisplayLink(target: self, selector: #selector(displayLinkFired))
+        link.add(to: .main, forMode: .common)
+        displayLink = link
+    }
+
+    private func stopDisplayLink() {
+        displayLink?.invalidate()
+        displayLink = nil
+    }
+
+    @objc private func displayLinkFired() {
+        let (topInset, bottomInset) = findEdgeBarInsets()
+
+        guard topInset != lastTopInset || bottomInset != lastBottomInset else { return }
+
+        lastTopInset = topInset
+        lastBottomInset = bottomInset
+
+        let newInsets = UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
+        UIView.animate(withDuration: 0.3, delay: 0, options: [.beginFromCurrentState, .curveEaseInOut]) {
+            self.scrollView.contentInset = newInsets
+            self.scrollView.verticalScrollIndicatorInsets = newInsets
+        }
     }
 
     private func findEdgeBarInsets() -> (top: CGFloat, bottom: CGFloat) {
