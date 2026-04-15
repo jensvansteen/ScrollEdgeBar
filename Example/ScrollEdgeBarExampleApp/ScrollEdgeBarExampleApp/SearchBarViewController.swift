@@ -18,6 +18,9 @@ class SearchBarViewController: UIViewController {
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search items"
         navigationItem.searchController = searchController
+        if #available(iOS 16.0, *) {
+            navigationItem.preferredSearchBarPlacement = .stacked
+        }
         navigationItem.hidesSearchBarWhenScrolling = false
 
         tableView.dataSource = self
@@ -79,3 +82,4 @@ extension SearchBarViewController: UITableViewDataSource {
         return cell
     }
 }
+

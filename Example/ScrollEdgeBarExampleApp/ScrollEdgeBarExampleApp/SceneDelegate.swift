@@ -12,11 +12,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         let nav = UINavigationController(rootViewController: ViewController())
         nav.navigationBar.prefersLargeTitles = true
-        nav.tabBarItem = UITabBarItem(title: "Demos", image: UIImage(systemName: "list.bullet"), tag: 0)
-
-        let tabBar = UITabBarController()
-        tabBar.viewControllers = [nav]
-        window.rootViewController = tabBar
+        window.rootViewController = nav
         self.window = window
         window.makeKeyAndVisible()
     }

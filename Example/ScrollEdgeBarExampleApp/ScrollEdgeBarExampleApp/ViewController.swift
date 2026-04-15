@@ -9,7 +9,6 @@ class ViewController: UITableViewController {
         ("Transition Showcase", "Color blocks showing glass blur", "paintpalette"),
         ("Toolbar", "Edge bar above system toolbar", "hammer"),
         ("Search Bar", "Search controller + segmented control", "magnifyingglass"),
-        ("Tab Accessory", "Inline & expanded bottom accessory", "music.note.list"),
         ("Calendar", "Week selector with strong blur", "calendar"),
     ]
 
@@ -49,8 +48,7 @@ class ViewController: UITableViewController {
         case 3: vc = TransitionShowcaseViewController()
         case 4: vc = ToolbarViewController()
         case 5: vc = SearchBarViewController()
-        case 6: vc = TabAccessoryViewController()
-        case 7: vc = CalendarViewController()
+        case 6: vc = CalendarViewController()
         default: return
         }
         navigationController?.pushViewController(vc, animated: true)
