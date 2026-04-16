@@ -146,47 +146,56 @@ The [Example/](Example/) directory contains a full demo app. Open `Example/Scrol
 
 Segmented control as top bar above a ranked app list.
 
-<!-- Add video/GIF here -->
+<video src="https://github.com/user-attachments/assets/0746b2cf-fd4b-43da-9e8e-802b95f6eccb" autoplay loop muted playsinline></video>
 
 ### App Store (No Glass)
 
 Same screen with `prefersGlassEffect: false`, showing the plain `safeAreaInset` bar.
 
-<!-- Add video/GIF here -->
+<video src="https://github.com/user-attachments/assets/4aa999a4-31f7-45c9-b9d4-0e74799af637" autoplay loop muted playsinline></video>
 
 ### Pull Requests
 
 Horizontally scrolling filter chips with large title navigation.
 
-<!-- Add video/GIF here -->
+<video src="https://github.com/user-attachments/assets/930b75f7-fdf3-422a-8d0d-231a40cab8d8" autoplay loop muted playsinline></video>
 
 ### PR Detail
 
 Glass-effect review banner (top) and action buttons (bottom) using `UIGlassEffect`.
 
-<!-- Add video/GIF here -->
+<video src="https://github.com/user-attachments/assets/3b1af859-7eb2-4ec3-88ca-b9f24739117f" autoplay loop muted playsinline></video>
 
 ### Transition Showcase
 
 Large colored blocks demonstrating how the glass blur color transitions as you scroll.
 
-<!-- Add video/GIF here -->
+<video src="https://github.com/user-attachments/assets/22a3e249-69b4-4243-95c3-854c8353db3f" autoplay loop muted playsinline></video>
 
 ### Toolbar
 
 Bottom edge bar positioned above the system `UIToolbar`.
 
-<!-- Add video/GIF here -->
+<video src="https://github.com/user-attachments/assets/efca03ec-b03b-414b-8138-303756ca6b86" autoplay loop muted playsinline></video>
 
 ### Search Bar
 
 `UISearchController` in the navigation bar with a segmented control edge bar below it.
 
-<!-- Add video/GIF here -->
+<video src="https://github.com/user-attachments/assets/cca987b5-3f8d-4674-88fa-17dd307f1cc6" autoplay loop muted playsinline></video>
 
 ### Calendar
 
-Week day selector top bar with strong edge blur, simulating the Calendar app.
+Week day selector top bar with strong edge blur, simulating the Calendar app. The strength of the blur as content scrolls behind the bar is controlled via `UIScrollView.topEdgeEffect`:
+
+```swift
+scrollView.topEdgeEffect.style = .automatic // default
+scrollView.topEdgeEffect.style = .soft
+scrollView.topEdgeEffect.style = .hard      // strongest, matches Calendar app
+
+// Also available for other edges
+scrollView.bottomEdgeEffect.style = .hard
+```
 
 <video src="https://github.com/user-attachments/assets/6bf1840b-3ab7-443e-b214-8222a12a942b" autoplay loop muted playsinline></video>
 
