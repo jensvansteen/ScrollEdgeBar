@@ -188,7 +188,7 @@ Bottom edge bar positioned above the system `UIToolbar`.
 
 Week day selector top bar with strong edge blur, simulating the Calendar app.
 
-![Calendar demo](https://github.com/user-attachments/assets/6bf1840b-3ab7-443e-b214-8222a12a942b)
+<video src="https://github.com/user-attachments/assets/6bf1840b-3ab7-443e-b214-8222a12a942b" autoplay loop muted playsinline></video>
 
 ## Author
 
