@@ -226,7 +226,6 @@ public final class ScrollEdgeBarController: UIViewController {
     }
 
     /// Reads the insets by converting the known bar view frames to window coordinates.
-    /// No private API — uses UIView.convert(_:to:) on views we already own.
     private func measureEdgeBarInsets() -> (top: CGFloat, bottom: CGFloat) {
         let windowHeight = view.window?.bounds.height ?? view.bounds.height
 
