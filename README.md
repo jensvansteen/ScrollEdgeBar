@@ -160,6 +160,8 @@ Horizontally scrolling filter chips with large title navigation.
 
 <video src="https://github.com/user-attachments/assets/930b75f7-fdf3-422a-8d0d-231a40cab8d8" autoplay loop muted playsinline></video>
 
+> **Note:** When a `safeAreaBar` is present alongside a large title navigation bar, SwiftUI applies the scroll edge blur effect to the navigation bar even when the content is at rest, causing it to appear blurry on first appearance. This is a known SwiftUI behavior ([FB21613303](https://developer.apple.com/forums/thread/812480)).
+
 ### PR Detail
 
 Glass-effect review banner (top) and action buttons (bottom) using `UIGlassEffect`.
