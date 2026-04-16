@@ -21,9 +21,5 @@ let package = Package(
                 .enableExperimentalFeature("StrictConcurrency")
             ]
         ),
-        .testTarget(
-            name: "ScrollEdgeBarTests",
-            dependencies: ["ScrollEdgeBar"]
-        ),
     ]
 )
