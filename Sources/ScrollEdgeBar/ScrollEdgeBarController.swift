@@ -155,10 +155,13 @@ public final class ScrollEdgeBarController: UIViewController {
 
         hosting.view.layoutIfNeeded()
 
-        // Apply estimated insets immediately so there's no blank frame
-        scrollView.contentInset = UIEdgeInsets(top: estimatedTopBarHeight, left: 0, bottom: estimatedBottomBarHeight, right: 0)
+        // Apply initial insets immediately so there's no blank frame.
+        // Use estimated bar heights when bars are present, otherwise fall back to safe area.
+        let initialTop = topBarView != nil ? estimatedTopBarHeight : view.safeAreaInsets.top
+        let initialBottom = bottomBarView != nil ? estimatedBottomBarHeight : view.safeAreaInsets.bottom
+        scrollView.contentInset = UIEdgeInsets(top: initialTop, left: 0, bottom: initialBottom, right: 0)
         scrollView.verticalScrollIndicatorInsets = scrollView.contentInset
-        scrollView.contentOffset = CGPoint(x: 0, y: -estimatedTopBarHeight)
+        scrollView.contentOffset = CGPoint(x: 0, y: -initialTop)
         scrollView.alpha = 1
 
         // Correct with real insets once SwiftUI has rendered the bars
@@ -185,7 +188,7 @@ public final class ScrollEdgeBarController: UIViewController {
     }
 
     private func applyInsets() {
-        let (topInset, bottomInset) = findEdgeBarInsets()
+        let (topInset, bottomInset) = measureEdgeBarInsets()
 
         lastTopInset = topInset
         lastBottomInset = bottomInset
@@ -208,7 +211,7 @@ public final class ScrollEdgeBarController: UIViewController {
     }
 
     @objc private func displayLinkFired() {
-        let (topInset, bottomInset) = findEdgeBarInsets()
+        let (topInset, bottomInset) = measureEdgeBarInsets()
 
         guard topInset != lastTopInset || bottomInset != lastBottomInset else { return }
 
@@ -222,43 +225,38 @@ public final class ScrollEdgeBarController: UIViewController {
         }
     }
 
-    private func findEdgeBarInsets() -> (top: CGFloat, bottom: CGFloat) {
-        guard let rootView = navigationController?.view ?? view.window?.rootViewController?.view else {
-            return (estimatedTopBarHeight, estimatedBottomBarHeight)
+    /// Reads the insets by converting the known bar view frames to window coordinates.
+    /// No private API — uses UIView.convert(_:to:) on views we already own.
+    private func measureEdgeBarInsets() -> (top: CGFloat, bottom: CGFloat) {
+        let windowHeight = view.window?.bounds.height ?? view.bounds.height
+
+        let topInset: CGFloat
+        if let topBarView {
+            if topBarView.window != nil {
+                let frame = topBarView.convert(topBarView.bounds, to: nil)
+                topInset = frame.maxY > 0 ? frame.maxY : estimatedTopBarHeight
+            } else {
+                topInset = estimatedTopBarHeight
+            }
+        } else {
+            // No top bar — respect the system safe area so content clears the navigation bar
+            topInset = view.safeAreaInsets.top
         }
 
-        var topInset: CGFloat = estimatedTopBarHeight
-        var bottomInset: CGFloat = estimatedBottomBarHeight
-
-        let screenHeight = view.bounds.height
-
-        findEdgeBarViews(in: rootView) { barView in
-            let frameInWindow = barView.convert(barView.bounds, to: nil)
-
-            if frameInWindow.origin.y < screenHeight / 2 {
-                topInset = frameInWindow.maxY
+        let bottomInset: CGFloat
+        if let bottomBarView {
+            if bottomBarView.window != nil {
+                let frame = bottomBarView.convert(bottomBarView.bounds, to: nil)
+                bottomInset = frame.minY < windowHeight ? windowHeight - frame.minY : estimatedBottomBarHeight
+            } else {
+                bottomInset = estimatedBottomBarHeight
             }
-
-            if frameInWindow.maxY > screenHeight / 2 {
-                bottomInset = screenHeight - frameInWindow.minY
-            }
+        } else {
+            // No bottom bar — respect the system safe area so content clears the tab bar / home indicator
+            bottomInset = view.safeAreaInsets.bottom
         }
 
         return (topInset, bottomInset)
-    }
-
-    private func findEdgeBarViews(in view: UIView, handler: (UIView) -> Void) {
-        for interaction in view.interactions {
-            let className = String(describing: type(of: interaction))
-            if className.contains("ScrollPocketBarInteraction") {
-                handler(view)
-                return
-            }
-        }
-
-        for subview in view.subviews {
-            findEdgeBarViews(in: subview, handler: handler)
-        }
     }
 }
 
