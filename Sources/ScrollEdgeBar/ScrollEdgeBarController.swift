@@ -7,10 +7,14 @@
 import UIKit
 import SwiftUI
 
-/// A container that wraps a UIScrollView with iOS 26+ glass blur bars.
+/// A container that wraps a UIScrollView with sticky edge bars.
 ///
-/// Use this to add sticky bars at the top and/or bottom of your scroll view that
-/// seamlessly extend the navigation bar or tab bar blur.
+/// On iOS 26 and later, bars added via ``setTopBar(_:)`` and ``setBottomBar(_:)``
+/// are rendered with the system's glass blur effect, seamlessly extending the
+/// navigation bar or tab bar.
+///
+/// On iOS 16–25 the same bars are displayed using `safeAreaInset`, without the
+/// blur effect.
 ///
 /// Example:
 /// ```swift
@@ -26,7 +30,6 @@ import SwiftUI
 /// view.addSubview(edgeBar.view)
 /// edgeBar.didMove(toParent: self)
 /// ```
-@available(iOS 26.0, *)
 public final class ScrollEdgeBarController: UIViewController {
 
     // MARK: - Public Properties
@@ -39,6 +42,10 @@ public final class ScrollEdgeBarController: UIViewController {
 
     /// Estimated bottom bar height (used before layout to prevent flicker)
     public var estimatedBottomBarHeight: CGFloat = 60
+
+    /// When `true` (default), uses the iOS 26 glass blur bar effect if available.
+    /// Set to `false` to use plain `safeAreaInset` bars on all OS versions.
+    public let prefersGlassEffect: Bool
 
     // MARK: - Private Properties
 
@@ -53,9 +60,13 @@ public final class ScrollEdgeBarController: UIViewController {
     // MARK: - Initialization
 
     /// Creates a new ScrollEdgeBarController wrapping the given scroll view.
-    /// - Parameter scrollView: The UIScrollView to wrap with edge bars
-    public init(scrollView: UIScrollView) {
+    /// - Parameters:
+    ///   - scrollView: The UIScrollView to wrap with edge bars
+    ///   - prefersGlassEffect: When `true` (default), uses the iOS 26 glass blur bar
+    ///     effect if available. Pass `false` to use plain bars on all OS versions.
+    public init(scrollView: UIScrollView, prefersGlassEffect: Bool = true) {
         self.scrollView = scrollView
+        self.prefersGlassEffect = prefersGlassEffect
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -106,9 +117,7 @@ public final class ScrollEdgeBarController: UIViewController {
 
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if didSetup {
-            startDisplayLink()
-        }
+        if didSetup { startDisplayLink() }
     }
 
     public override func viewDidLayoutSubviews() {
@@ -133,7 +142,8 @@ public final class ScrollEdgeBarController: UIViewController {
         let wrapperView = ScrollEdgeBarWrapperView(
             scrollView: scrollView,
             topBarContent: makeBarContent(topBarView),
-            bottomBarContent: makeBarContent(bottomBarView)
+            bottomBarContent: makeBarContent(bottomBarView),
+            prefersGlassEffect: prefersGlassEffect
         )
 
         let hosting = UIHostingController(rootView: wrapperView)
@@ -177,7 +187,8 @@ public final class ScrollEdgeBarController: UIViewController {
         let wrapperView = ScrollEdgeBarWrapperView(
             scrollView: scrollView,
             topBarContent: makeBarContent(topBarView),
-            bottomBarContent: makeBarContent(bottomBarView)
+            bottomBarContent: makeBarContent(bottomBarView),
+            prefersGlassEffect: prefersGlassEffect
         )
 
         hostingController?.rootView = wrapperView
@@ -225,7 +236,8 @@ public final class ScrollEdgeBarController: UIViewController {
         }
     }
 
-    /// Reads the insets by converting the known bar view frames to window coordinates.
+    /// Reads insets by converting the known bar view frames to window coordinates.
+    /// No private API — uses UIView.convert(_:to:) on views we already own.
     private func measureEdgeBarInsets() -> (top: CGFloat, bottom: CGFloat) {
         let windowHeight = view.window?.bounds.height ?? view.bounds.height
 
@@ -261,7 +273,6 @@ public final class ScrollEdgeBarController: UIViewController {
 
 // MARK: - BarViewWrapper
 
-@available(iOS 26.0, *)
 struct BarViewWrapper: UIViewRepresentable {
     let barView: UIView
 

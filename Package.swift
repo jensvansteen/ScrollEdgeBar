@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "ScrollEdgeBar",
     platforms: [
-        .iOS(.v26)
+        .iOS(.v16)
     ],
     products: [
         .library(
