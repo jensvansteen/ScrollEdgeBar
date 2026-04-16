@@ -5,6 +5,14 @@ class AppStoreListingViewController: UIViewController {
 
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var edgeBarController: ScrollEdgeBarController?
+    private let prefersGlassEffect: Bool
+
+    init(prefersGlassEffect: Bool = true) {
+        self.prefersGlassEffect = prefersGlassEffect
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
 
     private let apps: [(name: String, subtitle: String, color: UIColor, action: String)] = [
         ("Birdy", "Your daily companion", .systemMint, "Open"),
@@ -23,7 +31,7 @@ class AppStoreListingViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Top Downloaded"
+        title = prefersGlassEffect ? "Top Downloaded" : "Top Downloaded (No Glass)"
         navigationItem.largeTitleDisplayMode = .never
         view.backgroundColor = .systemBackground
 
@@ -45,7 +53,7 @@ class AppStoreListingViewController: UIViewController {
     }
 
     private func setupEdgeBars() {
-        let controller = ScrollEdgeBarController(scrollView: tableView)
+        let controller = ScrollEdgeBarController(scrollView: tableView, prefersGlassEffect: prefersGlassEffect)
 
         let segmented = UISegmentedControl(items: ["Free Apps", "Paid Apps"])
         segmented.selectedSegmentIndex = 0

@@ -4,6 +4,7 @@ class ViewController: UITableViewController {
 
     private let demos: [(title: String, subtitle: String, icon: String)] = [
         ("App Store Listing", "Segmented control top bar", "bag"),
+        ("App Store (No Glass)", "Same screen with prefersGlassEffect: false", "bag.badge.minus"),
         ("Pull Requests", "Filter chips with large title", "arrow.triangle.pull"),
         ("PR Detail", "Review banner + action buttons", "text.page.badge.magnifyingglass"),
         ("Transition Showcase", "Color blocks showing glass blur", "paintpalette"),
@@ -43,12 +44,13 @@ class ViewController: UITableViewController {
         let vc: UIViewController
         switch indexPath.row {
         case 0: vc = AppStoreListingViewController()
-        case 1: vc = PRListViewController()
-        case 2: vc = PRDetailViewController()
-        case 3: vc = TransitionShowcaseViewController()
-        case 4: vc = ToolbarViewController()
-        case 5: vc = SearchBarViewController()
-        case 6: vc = CalendarViewController()
+        case 1: vc = AppStoreListingViewController(prefersGlassEffect: false)
+        case 2: vc = PRListViewController()
+        case 3: vc = PRDetailViewController()
+        case 4: vc = TransitionShowcaseViewController()
+        case 5: vc = ToolbarViewController()
+        case 6: vc = SearchBarViewController()
+        case 7: vc = CalendarViewController()
         default: return
         }
         navigationController?.pushViewController(vc, animated: true)
