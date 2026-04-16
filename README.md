@@ -148,6 +148,12 @@ Segmented control as top bar above a ranked app list.
 
 <!-- Add video/GIF here -->
 
+### App Store (No Glass)
+
+Same screen with `prefersGlassEffect: false`, showing the plain `safeAreaInset` bar.
+
+<!-- Add video/GIF here -->
+
 ### Pull Requests
 
 Horizontally scrolling filter chips with large title navigation.
@@ -178,17 +184,11 @@ Bottom edge bar positioned above the system `UIToolbar`.
 
 <!-- Add video/GIF here -->
 
-### Tab Accessory
-
-`UITabAccessory` bottom accessory combined with a top edge bar.
-
-<!-- Add video/GIF here -->
-
 ### Calendar
 
 Week day selector top bar with strong edge blur, simulating the Calendar app.
 
-<!-- Add video/GIF here -->
+![Calendar demo](https://github.com/user-attachments/assets/6bf1840b-3ab7-443e-b214-8222a12a942b)
 
 ## Author
 
