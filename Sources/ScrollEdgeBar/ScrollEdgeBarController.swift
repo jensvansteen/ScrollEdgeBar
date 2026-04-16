@@ -7,10 +7,14 @@
 import UIKit
 import SwiftUI
 
-/// A container that wraps a UIScrollView with iOS 26+ glass blur bars.
+/// A container that wraps a UIScrollView with sticky edge bars.
 ///
-/// Use this to add sticky bars at the top and/or bottom of your scroll view that
-/// seamlessly extend the navigation bar or tab bar blur.
+/// On iOS 26 and later, bars added via ``setTopBar(_:)`` and ``setBottomBar(_:)``
+/// are rendered with the system's glass blur effect, seamlessly extending the
+/// navigation bar or tab bar.
+///
+/// On iOS 16–25 the same bars are displayed using `safeAreaInset`, without the
+/// blur effect.
 ///
 /// Example:
 /// ```swift
@@ -26,7 +30,6 @@ import SwiftUI
 /// view.addSubview(edgeBar.view)
 /// edgeBar.didMove(toParent: self)
 /// ```
-@available(iOS 26.0, *)
 public final class ScrollEdgeBarController: UIViewController {
 
     // MARK: - Public Properties
@@ -39,6 +42,10 @@ public final class ScrollEdgeBarController: UIViewController {
 
     /// Estimated bottom bar height (used before layout to prevent flicker)
     public var estimatedBottomBarHeight: CGFloat = 60
+
+    /// When `true` (default), uses the iOS 26 glass blur bar effect if available.
+    /// Set to `false` to use plain `safeAreaInset` bars on all OS versions.
+    public let prefersGlassEffect: Bool
 
     // MARK: - Private Properties
 
@@ -53,9 +60,13 @@ public final class ScrollEdgeBarController: UIViewController {
     // MARK: - Initialization
 
     /// Creates a new ScrollEdgeBarController wrapping the given scroll view.
-    /// - Parameter scrollView: The UIScrollView to wrap with edge bars
-    public init(scrollView: UIScrollView) {
+    /// - Parameters:
+    ///   - scrollView: The UIScrollView to wrap with edge bars
+    ///   - prefersGlassEffect: When `true` (default), uses the iOS 26 glass blur bar
+    ///     effect if available. Pass `false` to use plain bars on all OS versions.
+    public init(scrollView: UIScrollView, prefersGlassEffect: Bool = true) {
         self.scrollView = scrollView
+        self.prefersGlassEffect = prefersGlassEffect
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -106,9 +117,7 @@ public final class ScrollEdgeBarController: UIViewController {
 
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if didSetup {
-            startDisplayLink()
-        }
+        if didSetup { startDisplayLink() }
     }
 
     public override func viewDidLayoutSubviews() {
@@ -133,7 +142,8 @@ public final class ScrollEdgeBarController: UIViewController {
         let wrapperView = ScrollEdgeBarWrapperView(
             scrollView: scrollView,
             topBarContent: makeBarContent(topBarView),
-            bottomBarContent: makeBarContent(bottomBarView)
+            bottomBarContent: makeBarContent(bottomBarView),
+            prefersGlassEffect: prefersGlassEffect
         )
 
         let hosting = UIHostingController(rootView: wrapperView)
@@ -155,10 +165,13 @@ public final class ScrollEdgeBarController: UIViewController {
 
         hosting.view.layoutIfNeeded()
 
-        // Apply estimated insets immediately so there's no blank frame
-        scrollView.contentInset = UIEdgeInsets(top: estimatedTopBarHeight, left: 0, bottom: estimatedBottomBarHeight, right: 0)
+        // Apply initial insets immediately so there's no blank frame.
+        // Use estimated bar heights when bars are present, otherwise fall back to safe area.
+        let initialTop = topBarView != nil ? estimatedTopBarHeight : view.safeAreaInsets.top
+        let initialBottom = bottomBarView != nil ? estimatedBottomBarHeight : view.safeAreaInsets.bottom
+        scrollView.contentInset = UIEdgeInsets(top: initialTop, left: 0, bottom: initialBottom, right: 0)
         scrollView.verticalScrollIndicatorInsets = scrollView.contentInset
-        scrollView.contentOffset = CGPoint(x: 0, y: -estimatedTopBarHeight)
+        scrollView.contentOffset = CGPoint(x: 0, y: -initialTop)
         scrollView.alpha = 1
 
         // Correct with real insets once SwiftUI has rendered the bars
@@ -174,7 +187,8 @@ public final class ScrollEdgeBarController: UIViewController {
         let wrapperView = ScrollEdgeBarWrapperView(
             scrollView: scrollView,
             topBarContent: makeBarContent(topBarView),
-            bottomBarContent: makeBarContent(bottomBarView)
+            bottomBarContent: makeBarContent(bottomBarView),
+            prefersGlassEffect: prefersGlassEffect
         )
 
         hostingController?.rootView = wrapperView
@@ -185,7 +199,7 @@ public final class ScrollEdgeBarController: UIViewController {
     }
 
     private func applyInsets() {
-        let (topInset, bottomInset) = findEdgeBarInsets()
+        let (topInset, bottomInset) = measureEdgeBarInsets()
 
         lastTopInset = topInset
         lastBottomInset = bottomInset
@@ -208,7 +222,7 @@ public final class ScrollEdgeBarController: UIViewController {
     }
 
     @objc private func displayLinkFired() {
-        let (topInset, bottomInset) = findEdgeBarInsets()
+        let (topInset, bottomInset) = measureEdgeBarInsets()
 
         guard topInset != lastTopInset || bottomInset != lastBottomInset else { return }
 
@@ -222,49 +236,43 @@ public final class ScrollEdgeBarController: UIViewController {
         }
     }
 
-    private func findEdgeBarInsets() -> (top: CGFloat, bottom: CGFloat) {
-        guard let rootView = navigationController?.view ?? view.window?.rootViewController?.view else {
-            return (estimatedTopBarHeight, estimatedBottomBarHeight)
+    /// Reads insets by converting the known bar view frames to window coordinates.
+    /// No private API — uses UIView.convert(_:to:) on views we already own.
+    private func measureEdgeBarInsets() -> (top: CGFloat, bottom: CGFloat) {
+        let windowHeight = view.window?.bounds.height ?? view.bounds.height
+
+        let topInset: CGFloat
+        if let topBarView {
+            if topBarView.window != nil {
+                let frame = topBarView.convert(topBarView.bounds, to: nil)
+                topInset = frame.maxY > 0 ? frame.maxY : estimatedTopBarHeight
+            } else {
+                topInset = estimatedTopBarHeight
+            }
+        } else {
+            // No top bar — respect the system safe area so content clears the navigation bar
+            topInset = view.safeAreaInsets.top
         }
 
-        var topInset: CGFloat = estimatedTopBarHeight
-        var bottomInset: CGFloat = estimatedBottomBarHeight
-
-        let screenHeight = view.bounds.height
-
-        findEdgeBarViews(in: rootView) { barView in
-            let frameInWindow = barView.convert(barView.bounds, to: nil)
-
-            if frameInWindow.origin.y < screenHeight / 2 {
-                topInset = frameInWindow.maxY
+        let bottomInset: CGFloat
+        if let bottomBarView {
+            if bottomBarView.window != nil {
+                let frame = bottomBarView.convert(bottomBarView.bounds, to: nil)
+                bottomInset = frame.minY < windowHeight ? windowHeight - frame.minY : estimatedBottomBarHeight
+            } else {
+                bottomInset = estimatedBottomBarHeight
             }
-
-            if frameInWindow.maxY > screenHeight / 2 {
-                bottomInset = screenHeight - frameInWindow.minY
-            }
+        } else {
+            // No bottom bar — respect the system safe area so content clears the tab bar / home indicator
+            bottomInset = view.safeAreaInsets.bottom
         }
 
         return (topInset, bottomInset)
-    }
-
-    private func findEdgeBarViews(in view: UIView, handler: (UIView) -> Void) {
-        for interaction in view.interactions {
-            let className = String(describing: type(of: interaction))
-            if className.contains("ScrollPocketBarInteraction") {
-                handler(view)
-                return
-            }
-        }
-
-        for subview in view.subviews {
-            findEdgeBarViews(in: subview, handler: handler)
-        }
     }
 }
 
 // MARK: - BarViewWrapper
 
-@available(iOS 26.0, *)
 struct BarViewWrapper: UIViewRepresentable {
     let barView: UIView
 

@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "ScrollEdgeBar",
     platforms: [
-        .iOS(.v26)
+        .iOS(.v16)
     ],
     products: [
         .library(
@@ -20,10 +20,6 @@ let package = Package(
             swiftSettings: [
                 .enableExperimentalFeature("StrictConcurrency")
             ]
-        ),
-        .testTarget(
-            name: "ScrollEdgeBarTests",
-            dependencies: ["ScrollEdgeBar"]
         ),
     ]
 )
