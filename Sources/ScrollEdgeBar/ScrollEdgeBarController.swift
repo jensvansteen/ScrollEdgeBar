@@ -30,7 +30,7 @@ import SwiftUI
 /// view.addSubview(edgeBar.view)
 /// edgeBar.didMove(toParent: self)
 /// ```
-public final class ScrollEdgeBarController: UIViewController {
+open class ScrollEdgeBarController: UIViewController {
 
     // MARK: - Public Properties
 
@@ -70,7 +70,7 @@ public final class ScrollEdgeBarController: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) {
+    public required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -78,49 +78,49 @@ public final class ScrollEdgeBarController: UIViewController {
 
     /// Sets the content for the top edge bar.
     /// - Parameter view: A UIView to display as the top bar
-    public func setTopBar(_ view: UIView) {
+    open func setTopBar(_ view: UIView) {
         topBarView = view
         updateHostingControllerIfNeeded()
     }
 
     /// Sets the content for the bottom edge bar.
     /// - Parameter view: A UIView to display as the bottom bar
-    public func setBottomBar(_ view: UIView) {
+    open func setBottomBar(_ view: UIView) {
         bottomBarView = view
         updateHostingControllerIfNeeded()
     }
 
     /// Removes the top edge bar.
-    public func removeTopBar() {
+    open func removeTopBar() {
         topBarView = nil
         updateHostingControllerIfNeeded()
     }
 
     /// Removes the bottom edge bar.
-    public func removeBottomBar() {
+    open func removeBottomBar() {
         bottomBarView = nil
         updateHostingControllerIfNeeded()
     }
 
     // MARK: - Lifecycle
 
-    public override func viewDidLoad() {
+    open override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
         scrollView.alpha = 0
     }
 
-    public override func viewWillDisappear(_ animated: Bool) {
+    open override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         stopDisplayLink()
     }
 
-    public override func viewDidAppear(_ animated: Bool) {
+    open override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if didSetup { startDisplayLink() }
     }
 
-    public override func viewDidLayoutSubviews() {
+    open override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
         guard !didSetup else { return }
@@ -129,20 +129,25 @@ public final class ScrollEdgeBarController: UIViewController {
         setupHostingController()
     }
 
-    // MARK: - Private Methods
+    // MARK: - Bar Content Factory
 
-    private func makeBarContent(_ uiView: UIView?) -> AnyView? {
+    /// Override this method in a subclass to provide a custom SwiftUI view wrapping
+    /// a bar's `UIView`. The default implementation uses ``BarViewWrapper``.
+    /// - Parameter uiView: The bar view, or `nil` if no bar is set for this edge.
+    open func makeBarContent(for uiView: UIView?) -> AnyView? {
         guard let uiView else { return nil }
         return AnyView(BarViewWrapper(barView: uiView))
     }
+
+    // MARK: - Private Methods
 
     private func setupHostingController() {
         scrollView.removeFromSuperview()
 
         let wrapperView = ScrollEdgeBarWrapperView(
             scrollView: scrollView,
-            topBarContent: makeBarContent(topBarView),
-            bottomBarContent: makeBarContent(bottomBarView),
+            topBarContent: makeBarContent(for: topBarView),
+            bottomBarContent: makeBarContent(for: bottomBarView),
             prefersGlassEffect: prefersGlassEffect
         )
 
@@ -176,6 +181,11 @@ public final class ScrollEdgeBarController: UIViewController {
 
         // Correct with real insets once SwiftUI has rendered the bars
         DispatchQueue.main.async {
+            if #available(iOS 26.0, *) {
+                // In some containment hierarchies, navigation tracking does not
+                // get inferred automatically — register the scroll view explicitly.
+                self.parent?.setContentScrollView(self.scrollView, for: .top)
+            }
             self.applyInsets()
             self.startDisplayLink()
         }
@@ -186,8 +196,8 @@ public final class ScrollEdgeBarController: UIViewController {
 
         let wrapperView = ScrollEdgeBarWrapperView(
             scrollView: scrollView,
-            topBarContent: makeBarContent(topBarView),
-            bottomBarContent: makeBarContent(bottomBarView),
+            topBarContent: makeBarContent(for: topBarView),
+            bottomBarContent: makeBarContent(for: bottomBarView),
             prefersGlassEffect: prefersGlassEffect
         )
 
@@ -199,14 +209,14 @@ public final class ScrollEdgeBarController: UIViewController {
     }
 
     private func applyInsets() {
-        let (topInset, bottomInset) = measureEdgeBarInsets()
+        let (top, bottom) = measureEdgeBarInsets()
 
-        lastTopInset = topInset
-        lastBottomInset = bottomInset
+        lastTopInset = top
+        lastBottomInset = bottom
 
-        scrollView.contentInset = UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
-        scrollView.verticalScrollIndicatorInsets = UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
-        scrollView.contentOffset = CGPoint(x: 0, y: -topInset)
+        scrollView.contentInset = UIEdgeInsets(top: top, left: 0, bottom: bottom, right: 0)
+        scrollView.verticalScrollIndicatorInsets = UIEdgeInsets(top: top, left: 0, bottom: bottom, right: 0)
+        scrollView.contentOffset = CGPoint(x: 0, y: -top)
     }
 
     private func startDisplayLink() {
@@ -222,14 +232,14 @@ public final class ScrollEdgeBarController: UIViewController {
     }
 
     @objc private func displayLinkFired() {
-        let (topInset, bottomInset) = measureEdgeBarInsets()
+        let (top, bottom) = measureEdgeBarInsets()
 
-        guard topInset != lastTopInset || bottomInset != lastBottomInset else { return }
+        guard top != lastTopInset || bottom != lastBottomInset else { return }
 
-        lastTopInset = topInset
-        lastBottomInset = bottomInset
+        lastTopInset = top
+        lastBottomInset = bottom
 
-        let newInsets = UIEdgeInsets(top: topInset, left: 0, bottom: bottomInset, right: 0)
+        let newInsets = UIEdgeInsets(top: top, left: 0, bottom: bottom, right: 0)
         UIView.animate(withDuration: 0.3, delay: 0, options: [.beginFromCurrentState, .curveEaseInOut]) {
             self.scrollView.contentInset = newInsets
             self.scrollView.verticalScrollIndicatorInsets = newInsets
