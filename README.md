@@ -37,7 +37,7 @@ Add to `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/jensvansteen/ScrollEdgeBar.git", from: "1.0.0")
+    .package(url: "https://github.com/jensvansteen/ScrollEdgeBar.git", from: "1.1.0")
 ]
 ```
 
@@ -46,7 +46,7 @@ Or via Xcode: **File → Add Package Dependencies** and enter the repository URL
 ### CocoaPods
 
 ```ruby
-pod 'ScrollEdgeBar', '~> 1.0'
+pod 'ScrollEdgeBar', '~> 1.1'
 ```
 
 ## Usage
