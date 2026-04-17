@@ -124,6 +124,20 @@ controller.estimatedTopBarHeight = 48
 controller.estimatedBottomBarHeight = 44
 ```
 
+### Stable Slot Hosts (React Native / Custom Frameworks)
+
+`safeAreaBar` works best when the `UIView` identity it hosts remains stable across updates. If you are integrating from a framework like React Native that manages its own view lifecycle and may reparent or replace views, use `ScrollEdgeBarSlotHostView` as a fixed container:
+
+```swift
+let slot = ScrollEdgeBarSlotHostView()
+controller.setTopBar(slot)
+
+// Later, swap content without touching the bar itself
+slot.setContentView(myReactNativeView)
+```
+
+The slot's identity stays fixed in the SwiftUI hierarchy while the content inside can be replaced freely.
+
 ## API Reference
 
 | Member | Description |
@@ -137,6 +151,13 @@ controller.estimatedBottomBarHeight = 44
 | `removeBottomBar()` | Removes the bottom bar |
 | `estimatedTopBarHeight` | Estimated top bar height used before layout (default: `60`) |
 | `estimatedBottomBarHeight` | Estimated bottom bar height used before layout (default: `60`) |
+
+### ScrollEdgeBarSlotHostView
+
+| Member | Description |
+|---|---|
+| `setContentView(_:)` | Mounts a view inside the slot, replacing any previous content |
+| `contentView` | The currently mounted view (read-only) |
 
 ## Examples
 
