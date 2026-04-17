@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0
+
+### Changed
+- `ScrollEdgeBarController` is now `open` to allow subclassing
+- `setTopBar(_:)`, `setBottomBar(_:)`, `removeTopBar()`, `removeBottomBar()`, and lifecycle overrides are now `open`
+- `makeBarContent(for:)` is now `open` so subclasses can provide custom SwiftUI bar content
+
+### Fixed
+- On iOS 26, explicitly registers the scroll view with the parent view controller via `setContentScrollView(_:for:)` to ensure correct navigation bar scroll tracking in custom containment hierarchies
+
 ## 1.0.0
 
 ### Added
