@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0
+
+### Added
+- `ScrollEdgeBarSlotHostView` — a stable `UIView` container whose identity remains fixed while its content can be swapped or reparented. Useful for React Native and other frameworks that need to replace bar content without triggering a SwiftUI re-render of the `safeAreaBar`
+
 ## 1.1.0
 
 ### Changed
