@@ -187,6 +187,7 @@ open class ScrollEdgeBarController: UIViewController {
                 self.parent?.setContentScrollView(self.scrollView, for: .top)
             }
             self.applyInsets()
+            self.scrollView.contentOffset = CGPoint(x: 0, y: -self.lastTopInset)
             self.startDisplayLink()
         }
     }
@@ -216,7 +217,6 @@ open class ScrollEdgeBarController: UIViewController {
 
         scrollView.contentInset = UIEdgeInsets(top: top, left: 0, bottom: bottom, right: 0)
         scrollView.verticalScrollIndicatorInsets = UIEdgeInsets(top: top, left: 0, bottom: bottom, right: 0)
-        scrollView.contentOffset = CGPoint(x: 0, y: -top)
     }
 
     private func startDisplayLink() {
@@ -317,3 +317,4 @@ struct BarViewWrapper: UIViewRepresentable {
 
     func updateUIView(_ uiView: UIView, context: Context) {}
 }
+
